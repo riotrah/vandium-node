@@ -29,6 +29,9 @@ describe( MODULE_PATH, function() {
                 expect( instance._jwt ).to.exist;
                 expect( instance._jwt.enabled ).to.be.false;
 
+                expect( instance._parseQuery ).to.exist;
+                expect( instance._parseQuery ).to.be.false;
+
                 expect( instance._headers ).to.eql( {} );
 
                 expect( instance._protection ).to.exist;
@@ -52,7 +55,8 @@ describe( MODULE_PATH, function() {
                     protection: {
 
                         mode: 'fail'
-                    }
+                    },
+                    parseQuery : true,
                 });
 
                 expect( instance._type ).to.equal( 'apigateway' );
@@ -61,6 +65,9 @@ describe( MODULE_PATH, function() {
                 expect( instance._jwt.enabled ).to.be.true;
                 expect( instance._jwt.algorithm ).to.equal( 'HS256' );
                 expect( instance._jwt.key ).to.equal( 'secret' );
+
+                expect( instance._parseQuery ).to.exist;
+                expect( instance._parseQuery ).to.be.true;
 
                 expect( instance._headers ).to.eql( {} );
 
@@ -108,6 +115,23 @@ describe( MODULE_PATH, function() {
 
                 expect( instance._jwt ).to.exist;
                 expect( instance._jwt.enabled ).to.be.false;
+            });
+        });
+
+        describe( '.formURLEncoded', function() {
+
+            it( 'normal operation', function() {
+
+                let instance = new APIHandler();
+                expect( instance._parseQuery ).to.exist;
+                expect( instance._parseQuery ).to.be.false;
+
+                let returnValue = instance.formURLEncoded();
+
+                expect( returnValue ).to.equal( instance );
+
+                expect( instance._parseQuery ).to.exist;
+                expect( instance._parseQuery ).to.be.true;
             });
         });
 
@@ -387,6 +411,7 @@ describe( MODULE_PATH, function() {
                 let lambdaHandler = function( event, context, callback ) { callback(); };
 
                 expect( lambdaHandler.jwt ).to.not.exist;
+                expect( lambdaHandler.formURLEncoded ).to.not.exist;
                 expect( lambdaHandler.headers ).to.not.exist;
                 expect( lambdaHandler.protection ).to.not.exist;
                 expect( lambdaHandler.onError ).to.not.exist;
@@ -396,6 +421,9 @@ describe( MODULE_PATH, function() {
 
                 expect( lambdaHandler.jwt ).to.exist;
                 expect( lambdaHandler.jwt ).to.be.a( 'function' );
+
+                expect( lambdaHandler.formURLEncoded ).to.exist;
+                expect( lambdaHandler.formURLEncoded ).to.be.a( 'function' );
 
                 expect( lambdaHandler.headers ).to.exist;
                 expect( lambdaHandler.headers ).to.be.a( 'function' );
@@ -469,7 +497,7 @@ describe( MODULE_PATH, function() {
 
             it( 'simple request with formURLEncoded body', function() {
 
-                let instance = new APIHandler().PUT( () => {} );
+                let instance = new APIHandler().formURLEncoded().PUT( () => {} );
 
                 let state = {
 
